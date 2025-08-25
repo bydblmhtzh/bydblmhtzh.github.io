@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: "欢迎来到我的网站"
 description: "这是我的个人 GitHub Pages 网站"
 ---
