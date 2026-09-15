@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Houdini Agent 制作思路逆向分析 | bydblmhtzh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Houdini Agent 制作思路逆向分析 逆向对象：E:\tools\fast_work\Houdini Agent\（PyInstaller 打包，未加密，源码明文可见）分析时间：2026-08-21说明：本文为对朋友制作的软件做架构逆推与思路还原，非官方文档。   一、软件定位一个「桥接 Houdini 的 AI 助手」。核心形态是：一个独立于 Houdini 运行的桌面 GUI（PySi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Houdini Agent 制作思路逆向分析">
+<meta property="og:url" content="http://bydblmhtzh.github.io/notes/houdini-agent-reverse/index.html">
+<meta property="og:site_name" content="bydblmhtzh">
+<meta property="og:description" content="Houdini Agent 制作思路逆向分析 逆向对象：E:\tools\fast_work\Houdini Agent\（PyInstaller 打包，未加密，源码明文可见）分析时间：2026-08-21说明：本文为对朋友制作的软件做架构逆推与思路还原，非官方文档。   一、软件定位一个「桥接 Houdini 的 AI 助手」。核心形态是：一个独立于 Houdini 运行的桌面 GUI（PySi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-21T15:18:48.000Z">
+<meta property="article:modified_time" content="2026-09-15T16:32:13.582Z">
+<meta property="article:author" content="bydblmhtzh">
+<meta property="article:tag" content="Houdini">
+<meta property="article:tag" content="逆向">
+<meta property="article:tag" content="PySide6">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="bydblmhtzh" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bydblmhtzh</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://bydblmhtzh.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-houdini-agent-reverse" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/notes/houdini-agent-reverse/" class="article-date">
+  <time class="dt-published" datetime="2026-08-21T15:18:48.000Z" itemprop="datePublished">2026-08-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B7%A5%E5%85%B7%E7%A0%94%E7%A9%B6/">工具研究</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Houdini Agent 制作思路逆向分析
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Houdini-Agent-制作思路逆向分析"><a href="#Houdini-Agent-制作思路逆向分析" class="headerlink" title="Houdini Agent 制作思路逆向分析"></a>Houdini Agent 制作思路逆向分析</h1><blockquote>
+<p>逆向对象：<code>E:\tools\fast_work\Houdini Agent\</code>（PyInstaller 打包，未加密，源码明文可见）<br>分析时间：2026-08-21<br>说明：本文为对朋友制作的软件做架构逆推与思路还原，非官方文档。</p>
+</blockquote>
+<hr>
+<h2 id="一、软件定位"><a href="#一、软件定位" class="headerlink" title="一、软件定位"></a>一、软件定位</h2><p>一个<strong>「桥接 Houdini 的 AI 助手」</strong>。核心形态是：一个<strong>独立于 Houdini 运行的桌面 GUI</strong>（PySide6&#x2F;Qt），通过把一段 Python 代码注入 Houdini 内部运行，用 <strong>MCP 协议</strong>操控 Houdini 节点，让 AI 能”看、改、建” Houdini 场景。</p>
+<p>不是 Houdini 插件，也不是纯聊天机器人——是”外挂一个会操作 Houdini 的 agent”。</p>
+<hr>
+<h2 id="二、技术栈"><a href="#二、技术栈" class="headerlink" title="二、技术栈"></a>二、技术栈</h2><table>
+<thead>
+<tr>
+<th>层</th>
+<th>选型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语言</td>
+<td>Python 3.14（运行时）+ 兼容 3.9–3.13</td>
+</tr>
+<tr>
+<td>GUI</td>
+<td><strong>PySide6（Qt Widgets）+ QML（Qt Quick）双路线</strong></td>
+</tr>
+<tr>
+<td>打包</td>
+<td>PyInstaller</td>
+</tr>
+<tr>
+<td>关键依赖</td>
+<td>tiktoken（token 计数）、numpy、lxml、cryptography&#x2F;bcrypt（加密）、yaml、win32&#x2F;_wmi（系统集成）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三、核心架构（五层）"><a href="#三、核心架构（五层）" class="headerlink" title="三、核心架构（五层）"></a>三、核心架构（五层）</h2><h3 id="1-桥接层-bridge-payload-——-最关键的思路"><a href="#1-桥接层-bridge-payload-——-最关键的思路" class="headerlink" title="1. 桥接层 bridge_payload/ —— 最关键的思路"></a>1. 桥接层 <code>bridge_payload/</code> —— 最关键的思路</h3><p>软件本体（GUI）<strong>不寄生在 Houdini 里</strong>，而是把 <code>bridge_payload</code> 这个 Python 包<strong>注入 Houdini 的 Python 环境</strong>：</p>
+<ul>
+<li><code>bridge/server.py</code> + <code>bridge/client.py</code> —— Houdini 内部跑 server，GUI 跑 client，socket 通信</li>
+<li><code>launcher/houdini_discovery.py</code> —— 自动发现本机装的 Houdini 版本</li>
+<li><code>houdini_package/python3.9libs ~ python3.13libs</code> —— <strong>多版本 Python 适配</strong></li>
+<li><code>shelf_tool.py</code> + <code>QUICK_SHELF_CODE.py</code> —— 一键生成 Houdini Shelf 工具按钮</li>
+</ul>
+<p><strong>推断的思考</strong>：不同 Houdini 版本内置不同 Python（19.x→3.7&#x2F;3.9，20.x→3.9&#x2F;3.10&#x2F;3.11，21.x→3.11+），所以制作者预置了 3.9~3.13 多套 libs，桥接代码跑在哪套 Houdini 里都能用。</p>
+<h3 id="2-MCP-协议层-utils-mcp"><a href="#2-MCP-协议层-utils-mcp" class="headerlink" title="2. MCP 协议层 utils/mcp/"></a>2. MCP 协议层 <code>utils/mcp/</code></h3><p>用 <strong>Model Context Protocol</strong> 把 Houdini 操作封装成 AI 可调用的 tool：</p>
+<ul>
+<li><code>hou_core.py</code> —— hou 模块核心封装</li>
+<li><code>tools/node_ops.py / param_ops.py / exec_ops.py / doc_ops.py / network_inspect.py</code> —— 节点&#x2F;参数&#x2F;执行&#x2F;文档&#x2F;网络巡检五类操作</li>
+</ul>
+<p><strong>推断的思考</strong>：这是 2024–2025 MCP 热潮下的主流选择。制作者没有自己发明协议，而是套用 MCP 标准，让 AI 客户端（任何支持 MCP 的模型）都能直接接管 Houdini。</p>
+<h3 id="3-Agent-层-utils"><a href="#3-Agent-层-utils" class="headerlink" title="3. Agent 层 utils/"></a>3. Agent 层 <code>utils/</code></h3><p>一整套<strong>会自我改进的 agent 基础设施</strong>：</p>
+<ul>
+<li><code>plan_manager.py</code> —— 计划（拆任务）</li>
+<li><code>reflection.py</code> —— 反思</li>
+<li><code>reward_engine.py</code> —— 奖励引擎</li>
+<li><code>memory_store.py</code> —— 记忆</li>
+<li><code>growth_tracker.py</code> —— 成长追踪</li>
+<li><code>training_data_exporter.py</code> —— 训练数据导出</li>
+<li><code>token_optimizer.py</code> + <code>ultra_optimizer.py</code> —— token 优化</li>
+<li><code>tool_registry.py</code> —— 统一工具注册中心</li>
+<li><code>ai_client_providers.py</code> + <code>ai_client_streaming.py</code> —— 多 AI 后端 + 流式</li>
+<li><code>doc_rag.py</code> + <code>embedding.py</code> —— RAG 文档检索</li>
+<li><code>web_searcher.py</code> —— 联网搜索</li>
+</ul>
+<p><strong>推断的思考</strong>：这是最有野心的部分。<code>reward_engine</code> + <code>training_data_exporter</code> 说明制作者想做”能收集好坏反馈、导出训练数据”的 agent（可能为后续微调模型做准备），不只是问答工具。</p>
+<h3 id="4-扩展层-plugins-rules-config"><a href="#4-扩展层-plugins-rules-config" class="headerlink" title="4. 扩展层 plugins/ + rules/ + config/"></a>4. 扩展层 <code>plugins/</code> + <code>rules/</code> + <code>config/</code></h3><ul>
+<li><strong>插件系统</strong>：<code>PLUGIN_INFO</code> dict + <code>register(ctx)</code> 入口，事件钩子（<code>on_before_request</code>、<code>on_after_tool</code> 等 7 个）+ 装饰器（<code>@hook</code> &#x2F; <code>@tool</code> &#x2F; <code>@ui_button</code>）。ToolRegistry 显示 <strong>38+ 核心工具、9+ 技能</strong>。</li>
+<li><strong>规则系统</strong>：<code>.md</code>&#x2F;<code>.txt</code> 文件即规则，<code>_</code> 前缀文件忽略。示例规则是”请使用中文回复””节点命名用下划线”——本质是把<strong>提示词规则外置</strong>。</li>
+<li>**技能 <code>skills/</code>**：预置 9 个 Houdini 分析脚本（cook 性能、法线、点属性、连通性、死节点、依赖追踪…）</li>
+</ul>
+<p><strong>推断的思考</strong>：制作者想把”可扩展性”做成产品卖点——用户不用改源码，写个 .py 插件或 .md 规则就能定制 agent 行为。这套设计很像 Claude 的 <code>CLAUDE.md</code> &#x2F; 项目规则文件的思路。</p>
+<h3 id="5-UI-层-——-双路线"><a href="#5-UI-层-——-双路线" class="headerlink" title="5. UI 层 —— 双路线"></a>5. UI 层 —— 双路线</h3><ul>
+<li><code>ui/</code>（Qt Widgets）：大量 <strong>mixin 模式</strong>拆分（<code>context_mixin</code>、<code>history_mixin</code>、<code>memory_mixin</code>、<code>plan_mixin</code>、<code>streaming_mixin</code>、<code>system_prompt_mixin</code>…）+ 富控件（<code>plan_dag</code> 计划图、<code>thinking</code> 思考块、<code>tool_call</code>、<code>code_block</code> markdown 渲染、<code>syntax</code> 高亮、<code>theme</code> 主题）</li>
+<li><code>ui_qml/</code>（QML）：<code>Main.qml</code> + 40+ 个 HAgent 组件（ChatView、PlanDag、PlanStream、ThinkingBlock、TodoBlock、TokenPopup、ProviderManager、SettingsWindow…）</li>
+</ul>
+<p><strong>推断的思考</strong>：先是用 Qt Widgets 快速搭出功能（mixin 把巨型主窗口拆成功能片），后来发现流式聊天 + 富交互用 QML 更顺，开始迁移。证据：<code>qml_controller.pyc</code>&#x2F;<code>qml_host.pyc</code> 只出现在 <code>cpython-314</code> 缓存里（QML 是后加的新功能）。</p>
+<hr>
+<h2 id="四、关于-PyQt6-的考证（回应”他查了-PyQt6”）"><a href="#四、关于-PyQt6-的考证（回应”他查了-PyQt6”）" class="headerlink" title="四、关于 PyQt6 的考证（回应”他查了 PyQt6”）"></a>四、关于 PyQt6 的考证（回应”他查了 PyQt6”）</h2><p>制作者<strong>查的是 PyQt6 文档，实际用的是 PySide6</strong>，这是<strong>有意的、正确的选择</strong>：</p>
+<p><code>qt_compat.py</code> 写得很清楚——它同时兼容 <strong>PySide6 和 PySide2</strong>，注释原文：</p>
+<blockquote>
+<p>“Houdini 20.5 及之前版本自带 PySide2，Houdini 21+ 自带 PySide6。”</p>
+</blockquote>
+<p><strong>关键洞察</strong>：桥接代码要跑在 <strong>Houdini 内部</strong>，而 Houdini 内嵌的是 <strong>PySide</strong>（不是 PyQt）。如果制作者用 PyQt6，会跟 Houdini 自带的 PySide 产生 <strong>Qt 运行时冲突</strong>（两个 Qt 绑定不能共存于同一进程）。所以必须用 PySide6。</p>
+<p>而 PySide6 和 PyQt6 的 API 几乎一模一样（都是 Qt6 绑定），所以<strong>查 PyQt6 文档、用 PySide6 写代码</strong>完全可行，文档通用。这解释了”听说查了 PyQt6、实际是 PySide6”的现象。</p>
+<hr>
+<h2 id="五、制作者思考路径的逆推（时间线还原）"><a href="#五、制作者思考路径的逆推（时间线还原）" class="headerlink" title="五、制作者思考路径的逆推（时间线还原）"></a>五、制作者思考路径的逆推（时间线还原）</h2><ol>
+<li><strong>需求</strong>：让 AI 能操作 Houdini。</li>
+<li><strong>第一个决策</strong>：不写成 Houdini 内置插件，而是”外挂”——因为内置插件要跟随 Houdini 的 Python 版本、UI 框架，太受限；外挂 GUI 可以自由选最新 Python 3.14 + QML。</li>
+<li><strong>第二个决策</strong>：用桥接 + MCP，而不是在 Houdini 里直接跑 agent——把”操作 Houdini”抽象成标准工具，AI 后端可随意换。</li>
+<li><strong>第三个决策</strong>：选 PySide6 而非 PyQt6（Qt 运行时兼容性）。</li>
+<li><strong>野心膨胀</strong>：从”问答”升级成”会计划&#x2F;反思&#x2F;自我奖励&#x2F;记忆&#x2F;成长的 agent”，甚至加训练数据导出。</li>
+<li><strong>产品化</strong>：自动更新、遥测、国际化、主题系统、精选字体、插件市场、规则系统——都是”给别人用”的痕迹。</li>
+</ol>
+<hr>
+<h2 id="六、值得借鉴的工程细节"><a href="#六、值得借鉴的工程细节" class="headerlink" title="六、值得借鉴的工程细节"></a>六、值得借鉴的工程细节</h2><ol>
+<li><strong><code>qt_compat.py</code> 兼容层</strong>：一处封装 PySide2&#x2F;6 差异，全局统一导入，避免每个文件写 try&#x2F;except。很干净。</li>
+<li><strong>mixin 拆分主窗口</strong>：一个几百上千行的主窗口，拆成 <code>xxx_mixin</code> 多个文件，每个 mixin 管一块功能（历史、记忆、计划、流式…），可读性极好。</li>
+<li><strong>插件协议</strong>：<code>PLUGIN_INFO</code> + <code>register(ctx)</code> + 装饰器 + 事件钩子，是成熟的插件生态设计。</li>
+<li><strong>规则文件</strong>：把提示词规则外置成 .md，用户零代码定制。</li>
+<li><strong>多版本适配</strong>：<code>python3.9libs~3.13libs</code> 预置，解决 Houdini 各版本 Python 差异。</li>
+<li><strong>统一 ToolRegistry</strong>：核心工具 &#x2F; 技能 &#x2F; 插件工具 &#x2F; 用户技能，四种来源统一注册到一处。</li>
+</ol>
+<hr>
+<h2 id="七、观察到的局限-可改进点（我的评价）"><a href="#七、观察到的局限-可改进点（我的评价）" class="headerlink" title="七、观察到的局限 &#x2F; 可改进点（我的评价）"></a>七、观察到的局限 &#x2F; 可改进点（我的评价）</h2><ol>
+<li><strong>API 密钥明文存配置</strong>：<code>houdini_ai.ini</code> 里明文存了密钥，建议改用系统凭据管理器（Windows Credential Manager &#x2F; keyring）。（注：本文不记录任何密钥值。）</li>
+<li><strong>双 UI 并存成本高</strong>：Widgets 和 QML 两套 UI 并行维护，长期是负担，建议择一收敛。</li>
+<li><strong>多版本 libs 体积膨胀</strong>：3.9~3.13 全套打进包，8MB 主程序 + 大量 <code>_internal</code> 依赖，后续可考虑按需下载。</li>
+<li><strong>PyInstaller 未加密</strong>：源码明文（.py + .pyc）可直接反编译，若有商业诉求建议加保护（但作为朋友作品，这也方便了学习和交流）。</li>
+</ol>
+<hr>
+<p><em>本文基于只读逆向分析，未修改软件任何文件。</em></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://bydblmhtzh.github.io/notes/houdini-agent-reverse/" data-id="cmu2w71cy000d68vr9ika8owk" data-title="Houdini Agent 制作思路逆向分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Houdini/" rel="tag">Houdini</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PySide6/" rel="tag">PySide6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%86%E5%90%91/" rel="tag">逆向</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/interactive-water-shader/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          可交互水体 Shader 的改进
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/obsidian-diagrams/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Obsidian 支持的代码图（mermaid 全谱）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9B%BE%E5%BD%A2%E6%B8%B2%E6%9F%93/">图形渲染</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E7%A0%94%E7%A9%B6/">工具研究</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BRDF/" rel="tag">BRDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BSDF/" rel="tag">BSDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Houdini/" rel="tag">Houdini</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Obsidian/" rel="tag">Obsidian</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PySide6/" rel="tag">PySide6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RenderTexture/" rel="tag">RenderTexture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SICP/" rel="tag">SICP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Scheme/" rel="tag">Scheme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Shader/" rel="tag">Shader</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mermaid/" rel="tag">mermaid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E5%B1%82/" rel="tag">图层</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%90%E8%B4%A8/" rel="tag">材质</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E4%BD%93/" rel="tag">水体</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%95%E7%BA%BF/" rel="tag">法线</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/" rel="tag">离散数学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%86%E5%90%91/" rel="tag">逆向</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E7%AC%94%E8%AE%B0/" rel="tag">项目笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BRDF/" style="font-size: 10px;">BRDF</a> <a href="/tags/BSDF/" style="font-size: 15px;">BSDF</a> <a href="/tags/Houdini/" style="font-size: 10px;">Houdini</a> <a href="/tags/Obsidian/" style="font-size: 10px;">Obsidian</a> <a href="/tags/PySide6/" style="font-size: 10px;">PySide6</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/RenderTexture/" style="font-size: 10px;">RenderTexture</a> <a href="/tags/SICP/" style="font-size: 10px;">SICP</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/Scheme/" style="font-size: 10px;">Scheme</a> <a href="/tags/Shader/" style="font-size: 20px;">Shader</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/mermaid/" style="font-size: 10px;">mermaid</a> <a href="/tags/%E5%9B%BE%E5%B1%82/" style="font-size: 10px;">图层</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 10px;">数据库</a> <a href="/tags/%E6%9D%90%E8%B4%A8/" style="font-size: 10px;">材质</a> <a href="/tags/%E6%B0%B4%E4%BD%93/" style="font-size: 10px;">水体</a> <a href="/tags/%E6%B3%95%E7%BA%BF/" style="font-size: 10px;">法线</a> <a href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/" style="font-size: 10px;">离散数学</a> <a href="/tags/%E8%AE%BA%E6%96%87/" style="font-size: 10px;">论文</a> <a href="/tags/%E9%80%86%E5%90%91/" style="font-size: 10px;">逆向</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">项目笔记</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/09/">九月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/08/">八月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/07/">七月 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/notes/truth-table-operations/">真值表操作</a>
+          </li>
+        
+          <li>
+            <a href="/notes/ggx-bsdf-reading/">BSDF 论文跟读：GGX 与透射项</a>
+          </li>
+        
+          <li>
+            <a href="/notes/endfield-assets/">终末地资产与材质说明</a>
+          </li>
+        
+          <li>
+            <a href="/notes/how-to-use-rendertexture/">如何使用 RenderTexture（RT）</a>
+          </li>
+        
+          <li>
+            <a href="/notes/interactive-water-shader/">可交互水体 Shader 的改进</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 bydblmhtzh<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

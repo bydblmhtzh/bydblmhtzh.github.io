@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>真值表操作 | bydblmhtzh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="对于一个基本门电路类型，我们使用0101，0011作为两个输入信号（不可换序）我们对四种双信号门电路，可以总结出 两种transform对称这个是输入取反的关系，在我们的输入性质里有中心对称性，比如说或门可以通过这种方式转移到与非门 取反分别取得对应的非门 平移这个真值表对于这种问题，我们可以挑选两种分析起点，与门和非门，因为这类操作本质是假设这个4循环周期连续，且改换特异点位置，所以我们只需要想">
+<meta property="og:type" content="article">
+<meta property="og:title" content="真值表操作">
+<meta property="og:url" content="http://bydblmhtzh.github.io/notes/truth-table-operations/index.html">
+<meta property="og:site_name" content="bydblmhtzh">
+<meta property="og:description" content="对于一个基本门电路类型，我们使用0101，0011作为两个输入信号（不可换序）我们对四种双信号门电路，可以总结出 两种transform对称这个是输入取反的关系，在我们的输入性质里有中心对称性，比如说或门可以通过这种方式转移到与非门 取反分别取得对应的非门 平移这个真值表对于这种问题，我们可以挑选两种分析起点，与门和非门，因为这类操作本质是假设这个4循环周期连续，且改换特异点位置，所以我们只需要想">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-13T02:43:23.000Z">
+<meta property="article:modified_time" content="2026-09-15T16:32:13.583Z">
+<meta property="article:author" content="bydblmhtzh">
+<meta property="article:tag" content="离散数学">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="bydblmhtzh" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bydblmhtzh</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://bydblmhtzh.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-truth-table-operations" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/notes/truth-table-operations/" class="article-date">
+  <time class="dt-published" datetime="2026-09-13T02:43:23.000Z" itemprop="datePublished">2026-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      真值表操作
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>对于一个基本门电路类型，我们使用0101，0011作为两个输入信号（不可换序）<br>我们对四种双信号门电路，可以总结出</p>
+<h3 id="两种transform"><a href="#两种transform" class="headerlink" title="两种transform"></a>两种transform</h3><h4 id="对称"><a href="#对称" class="headerlink" title="对称"></a>对称</h4><p>这个是输入取反的关系，在我们的输入性质里有中心对称性，比如说或门可以通过这种方式转移到与非门</p>
+<h4 id="取反"><a href="#取反" class="headerlink" title="取反"></a>取反</h4><p>分别取得对应的非门</p>
+<h3 id="平移这个真值表"><a href="#平移这个真值表" class="headerlink" title="平移这个真值表"></a>平移这个真值表</h3><p>对于这种问题，我们可以挑选两种分析起点，与门和非门，因为这类操作本质是假设这个4循环周期连续，且改换特异点位置，所以我们只需要想其仅在某种情况下可以改变其输入来获得周期</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0 1 0 1</span><br><span class="line">0 0 1 1</span><br><span class="line">0 1 0 0</span><br></pre></td></tr></table></figure>
+<p>可以看到我们把第二信号反转其实就是与门结果，同理可以得出第一信号反转可以得到奇数位置</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://bydblmhtzh.github.io/notes/truth-table-operations/" data-id="cmu2w71d5001x68vrgxo817b6" data-title="真值表操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/" rel="tag">离散数学</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/notes/ggx-bsdf-reading/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">BSDF 论文跟读：GGX 与透射项</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9B%BE%E5%BD%A2%E6%B8%B2%E6%9F%93/">图形渲染</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E7%A0%94%E7%A9%B6/">工具研究</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BRDF/" rel="tag">BRDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BSDF/" rel="tag">BSDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Houdini/" rel="tag">Houdini</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Obsidian/" rel="tag">Obsidian</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PySide6/" rel="tag">PySide6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RenderTexture/" rel="tag">RenderTexture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SICP/" rel="tag">SICP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Scheme/" rel="tag">Scheme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Shader/" rel="tag">Shader</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mermaid/" rel="tag">mermaid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E5%B1%82/" rel="tag">图层</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%90%E8%B4%A8/" rel="tag">材质</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E4%BD%93/" rel="tag">水体</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%95%E7%BA%BF/" rel="tag">法线</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/" rel="tag">离散数学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%86%E5%90%91/" rel="tag">逆向</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E7%AC%94%E8%AE%B0/" rel="tag">项目笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BRDF/" style="font-size: 10px;">BRDF</a> <a href="/tags/BSDF/" style="font-size: 15px;">BSDF</a> <a href="/tags/Houdini/" style="font-size: 10px;">Houdini</a> <a href="/tags/Obsidian/" style="font-size: 10px;">Obsidian</a> <a href="/tags/PySide6/" style="font-size: 10px;">PySide6</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/RenderTexture/" style="font-size: 10px;">RenderTexture</a> <a href="/tags/SICP/" style="font-size: 10px;">SICP</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/Scheme/" style="font-size: 10px;">Scheme</a> <a href="/tags/Shader/" style="font-size: 20px;">Shader</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/mermaid/" style="font-size: 10px;">mermaid</a> <a href="/tags/%E5%9B%BE%E5%B1%82/" style="font-size: 10px;">图层</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 10px;">数据库</a> <a href="/tags/%E6%9D%90%E8%B4%A8/" style="font-size: 10px;">材质</a> <a href="/tags/%E6%B0%B4%E4%BD%93/" style="font-size: 10px;">水体</a> <a href="/tags/%E6%B3%95%E7%BA%BF/" style="font-size: 10px;">法线</a> <a href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/" style="font-size: 10px;">离散数学</a> <a href="/tags/%E8%AE%BA%E6%96%87/" style="font-size: 10px;">论文</a> <a href="/tags/%E9%80%86%E5%90%91/" style="font-size: 10px;">逆向</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">项目笔记</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/09/">九月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/08/">八月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/07/">七月 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/notes/truth-table-operations/">真值表操作</a>
+          </li>
+        
+          <li>
+            <a href="/notes/ggx-bsdf-reading/">BSDF 论文跟读：GGX 与透射项</a>
+          </li>
+        
+          <li>
+            <a href="/notes/endfield-assets/">终末地资产与材质说明</a>
+          </li>
+        
+          <li>
+            <a href="/notes/how-to-use-rendertexture/">如何使用 RenderTexture（RT）</a>
+          </li>
+        
+          <li>
+            <a href="/notes/interactive-water-shader/">可交互水体 Shader 的改进</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 bydblmhtzh<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
