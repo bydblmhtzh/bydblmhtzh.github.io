@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>bydblmhtzh</title>
+  <subtitle>图形渲染 · 实时 Shader · 工具研究</subtitle>
+  <link href="https://bydblmhtzh.github.io/atom.xml" rel="self"/>
+  <link href="https://bydblmhtzh.github.io/"/>
+  <updated>2026-11-20T10:37:59.330Z</updated>
+  <id>https://bydblmhtzh.github.io/</id>
+  <author><name>bydblmhtzh</name></author>
+  <entry>
+    <title>纳维-斯托克斯方程推导</title>
+    <link href="https://bydblmhtzh.github.io/notes/navier-stokes-derivation/"/>
+    <id>https://bydblmhtzh.github.io/notes/navier-stokes-derivation/</id>
+    <updated>2026-11-20T10:37:59.330Z</updated>
+    <published>2026-11-12T03:50:11.000Z</published>
+    <summary>做水、烟雾、布料这类效果时，绕不开 Navier-Stokes。这里把推导从 一路写到常用的不可压缩形式，中间每一步都标出用到的假设。 前提 ：牛顿流体、不可压缩（ ）、常黏度。 推导 1：基础推导过程 从牛顿第二定律出发： 批注： 对流体讨论，设 批注： 物质导数 将物质导数代入得： 两边除以微元体积 ： 批注： 流体受到内力（即应力）和 外力（如风力，摩擦力，重力） 设单位体积外力为 ，则 对右上角流体模型进行分析，令法向 统一朝外。则在 方向上左侧面的力为： 右侧面的受</summary>
+  </entry>
+  <entry>
+    <title>内存分配：首次、最佳、最坏适应走一遍</title>
+    <link href="https://bydblmhtzh.github.io/notes/memory-allocation-fit/"/>
+    <id>https://bydblmhtzh.github.io/notes/memory-allocation-fit/</id>
+    <updated>2026-11-20T10:37:59.329Z</updated>
+    <published>2026-11-09T02:44:46.000Z</published>
+    <summary>操作系统作业里的一道经典题：给定一块被分割得七零八落的内存，用三种适应算法依次分配三个作业，看谁先失败。 这篇把三种算法放在 完全相同 的初始状态上跑一遍，好看出差别到底来自哪里。 题目设定 内存共 256K，已经存在的占用和空闲区如下： 区域 地址范围 大小 状态 系统 0 ~ 20 20K 占用 空闲区 1 20 ~ 50 30K 空闲 作业 50 ~ 100 50K 占用 空闲区 2 100 ~ 120 20K 空闲 作业 120 ~ 160 40K 占用 空闲区 3 </summary>
+  </entry>
+  <entry>
+    <title>Flocking 拆解（一）：Compute Shader 最小可用例</title>
+    <link href="https://bydblmhtzh.github.io/notes/flocking-compute-shader/"/>
+    <id>https://bydblmhtzh.github.io/notes/flocking-compute-shader/</id>
+    <updated>2026-11-20T10:37:59.526Z</updated>
+    <published>2026-11-05T09:20:17.000Z</published>
+    <summary>想写 boids flocking，先把链路跑通： CPU 传数据 → GPU 算 → 读回 。这篇只做这一件事——一个把 float 数组乘 10 的最小 Compute Shader，作为后面上 boids 三规则的骨架。 Compute Shader 侧 # pragma kernel MainCS // kernel：告诉 C# 这是一个可调用入口 // MainCS：计算主入口的名字 int _Width; float _Multiplier; // CPU 传入的</summary>
+  </entry>
+  <entry>
+    <title>终末地资产与材质说明</title>
+    <link href="https://bydblmhtzh.github.io/notes/endfield-assets/"/>
+    <id>https://bydblmhtzh.github.io/notes/endfield-assets/</id>
+    <updated>2026-11-20T10:37:59.322Z</updated>
+    <published>2026-10-16T04:14:48.000Z</published>
+    <summary>简介：这个文档是对于B站终末地次次先生的跟学，相关内容为第一次补档。 原作者：次次先生 M是material缩写MI则是对应实例 所有的前期工作：确定通道功能，简单了解技术 贴图 skin T_actor_chen_body_01_D: rgb:color,a:shadowmask Cloth Diffusion T_actor_chen_cloth_01_D rgb: color a : NameMask E T_actor_chen_cloth_01_E P–someFe</summary>
+  </entry>
+  <entry>
+    <title>雨天效果拆分：材质三要素与跨平面法线</title>
+    <link href="https://bydblmhtzh.github.io/notes/rain-shader-breakdown/"/>
+    <id>https://bydblmhtzh.github.io/notes/rain-shader-breakdown/</id>
+    <updated>2026-11-20T10:37:59.525Z</updated>
+    <published>2026-10-02T09:21:05.000Z</published>
+    <summary>雨天不是一个 shader，是好几层东西叠出来的。抛开粒子不谈，只看表面，至少要拆成： 材质三要素 （基础色压暗、法线、粗糙度&amp;#x2F;AO）和 系统层 （雨量怎么量化、法线怎么在不同朝向的面上混合）。 这篇是动手前的拆解笔记，把问题拆开，实现还没填满。 一、材质三要素 从材质角度看，淋湿的表面只有三个维度在变： 基础颜色压暗 水覆盖上去之后，漫反射贡献被吸收和折射吃掉一部分，漫反射色整体压暗、饱和度降低。水坑处更极端，几乎只剩反射。 法线操作 两种尺度要分开： 大尺度 是</summary>
+  </entry>
+  <entry>
+    <title>KK-specular：动漫风各向异性高光</title>
+    <link href="https://bydblmhtzh.github.io/notes/kk-specular-anisotropic/"/>
+    <id>https://bydblmhtzh.github.io/notes/kk-specular-anisotropic/</id>
+    <updated>2026-11-20T10:37:59.528Z</updated>
+    <published>2026-09-20T08:21:47.000Z</published>
+    <summary>Kajiya-Kay 模型本来是为毛发做的：一根头发可以当成圆柱，法线绕切线 转一圈都算”同一根发丝”，于是高光不是一个点，而是 一条沿发丝方向的带 。卡通渲染借这个”带”来做天使环。 参考： 基于 Kajiya-Kay 模型的毛发渲染（知乎 @zd304） 这里先补一个关键前提：如果真按逐根发丝、逐面法线算高光，开销会爆炸。做法是 每根发丝只取一根「代表性法线」 ——垂直于切线方向的副切线是唯一的，过副切线起点、让它与副切线和光线共面，就能唯一确定一根法线，用它算出整根发丝</summary>
+  </entry>
+  <entry>
+    <title>真值表操作</title>
+    <link href="https://bydblmhtzh.github.io/notes/truth-table-operations/"/>
+    <id>https://bydblmhtzh.github.io/notes/truth-table-operations/</id>
+    <updated>2026-11-20T10:37:59.326Z</updated>
+    <published>2026-09-13T02:43:23.000Z</published>
+    <summary>对于一个基本门电路类型，我们使用0101，0011作为两个输入信号（不可换序） 我们对四种双信号门电路，可以总结出 两种transform 对称 这个是输入取反的关系，在我们的输入性质里有中心对称性，比如说或门可以通过这种方式转移到与非门 取反 分别取得对应的非门 平移这个真值表 对于这种问题，我们可以挑选两种分析起点，与门和非门，因为这类操作本质是假设这个4循环周期连续，且改换特异点位置，所以我们只需要想其仅在某种情况下可以改变其输入来获得周期 0 1 0 1 0 0 1 </summary>
+  </entry>
+  <entry>
+    <title>BSDF 论文跟读：GGX 与透射项</title>
+    <link href="https://bydblmhtzh.github.io/notes/ggx-bsdf-reading/"/>
+    <id>https://bydblmhtzh.github.io/notes/ggx-bsdf-reading/</id>
+    <updated>2026-11-20T10:37:58.829Z</updated>
+    <published>2026-09-10T02:32:12.000Z</published>
+    <summary>BSDF，首先区分f_s这个是其他scatter散射，并非BRDF的specular。 其中： 论文定义了一个 transmission(BTDF) 下的 half 向量： 全反射时 图 2 — GGX D + Smith G₁：</summary>
+  </entry>
+  <entry>
+    <title>如何使用 RenderTexture（RT）</title>
+    <link href="https://bydblmhtzh.github.io/notes/how-to-use-rendertexture/"/>
+    <id>https://bydblmhtzh.github.io/notes/how-to-use-rendertexture/</id>
+    <updated>2026-11-20T10:37:58.849Z</updated>
+    <published>2026-09-04T09:38:10.000Z</published>
+    <summary>需要一个相机，一张RT来进行记录 单独设定一个layermask防止干扰 首先在头上设定一个Ortho相机</summary>
+  </entry>
+  <entry>
+    <title>可交互水体 Shader 的改进</title>
+    <link href="https://bydblmhtzh.github.io/notes/interactive-water-shader/"/>
+    <id>https://bydblmhtzh.github.io/notes/interactive-water-shader/</id>
+    <updated>2026-11-20T10:37:58.831Z</updated>
+    <published>2026-09-02T20:12:58.000Z</published>
+    <summary>尝试去计算深度 FlowMap技术 使用rg两个通道，r使用u，g使用v方向 原料：水波shader写入RT 在水面shader根据RT重建normal 为了画面健康，使用函数算出顶点偏移和法线，之后把这个移交会片元阶段，由于我们假设现代的水面shader为了正确性，最后使用alpha筛选效果 顶点部分的波和颜色的波，前面我们识别方向进行波模拟，后者我们则是一张RT 最重要的：处理这么多变量 一个俯拍相机的rt变量，波的变量以及这两个的衍生控制 先从脚本开始看看能做到多细 之</summary>
+  </entry>
+  <entry>
+    <title>Houdini Agent 制作思路逆向分析</title>
+    <link href="https://bydblmhtzh.github.io/notes/houdini-agent-reverse/"/>
+    <id>https://bydblmhtzh.github.io/notes/houdini-agent-reverse/</id>
+    <updated>2026-11-20T10:37:59.323Z</updated>
+    <published>2026-08-21T15:18:48.000Z</published>
+    <summary>逆向对象： E:\tools\fast_work\Houdini Agent\ （PyInstaller 打包，未加密，源码明文可见） 分析时间：2026-08-21 说明：本文为对朋友制作的软件做架构逆推与思路还原，非官方文档。 一、软件定位 一个 「桥接 Houdini 的 AI 助手」 。核心形态是：一个 独立于 Houdini 运行的桌面 GUI （PySide6&amp;#x2F;Qt），通过把一段 Python 代码注入 Houdini 内部运行，用 MCP 协议 操控 </summary>
+  </entry>
+  <entry>
+    <title>Obsidian 支持的代码图（mermaid 全谱）</title>
+    <link href="https://bydblmhtzh.github.io/notes/obsidian-diagrams/"/>
+    <id>https://bydblmhtzh.github.io/notes/obsidian-diagrams/</id>
+    <updated>2026-11-20T10:37:59.323Z</updated>
+    <published>2026-08-12T14:32:29.000Z</published>
+    <summary>flowchart TD A[&amp;quot;(cc 11 5)&amp;quot;] --&amp;gt; B[&amp;quot;(cc 11 4)&amp;quot;] A -.-&amp;gt;|cc -39 5 = 0| Z1((0)) B --&amp;gt; C[&amp;quot;(cc 11 3)&amp;quot;] B -.-&amp;gt;|cc -14 4 = 0| Z2((0)) C --&amp;gt; D[&amp;quot;(cc 11 2)&amp;quot;] C --&amp;gt; E[&amp;quot;(cc 1 3)&amp;quot;] D --&amp;</summary>
+  </entry>
+  <entry>
+    <title>SICP 1.1 程序设计的基本元素</title>
+    <link href="https://bydblmhtzh.github.io/notes/sicp-elements-of-programming/"/>
+    <id>https://bydblmhtzh.github.io/notes/sicp-elements-of-programming/</id>
+    <updated>2026-11-20T10:37:59.325Z</updated>
+    <published>2026-08-12T14:31:47.000Z</published>
+    <summary>表达式 命名和环境 组合式的求值 复合过程 过程应用的代换模型 条件表达式和谓词 采用牛顿法求平方根 过程作为黑箱抽象 基本表达形式，组合方法，抽象方法 表达式（+ 1 2）又叫组合式，由于符号在开始就确定所以其实界定了有效函数的范围， 定义函数： （define pi 3.14） 可以看到函数种值和符号关联，之后又可以取出这些值，解释器必须维护某种存储能力，这种存储被称之为环境 组合式的求值： 1.求值该组合式的各个子表达式， 2.将左子表达式应用于实际参数 处理基本表达式</summary>
+  </entry>
+  <entry>
+    <title>任意 BXDF 的写法思路</title>
+    <link href="https://bydblmhtzh.github.io/notes/arbitrary-bxdf/"/>
+    <id>https://bydblmhtzh.github.io/notes/arbitrary-bxdf/</id>
+    <updated>2026-11-20T10:37:58.830Z</updated>
+    <published>2026-08-08T12:13:56.000Z</published>
+    <summary>首先声明，出射光&amp;#x3D; BRDF * 入射光，所以一般来说需要完整的输入数据 $$\begin{gathered} f_r &amp;#x3D; k_df_d+k_sf_s\\ r &amp;#x3D; see,d&amp;#x3D;diffuse,s &amp;#x3D; specular \end{gathered} half3 EyeBxDF ( half3 DiffuseColor, half3 SpecularColor, float Roughness, half3 N, half3 V,</summary>
+  </entry>
+  <entry>
+    <title>Normal Shader 的原理（镜像 UV）</title>
+    <link href="https://bydblmhtzh.github.io/notes/normal-shader-principle/"/>
+    <id>https://bydblmhtzh.github.io/notes/normal-shader-principle/</id>
+    <updated>2026-11-20T10:37:58.831Z</updated>
+    <published>2026-08-03T15:21:40.000Z</published>
+    <summary>#镜像UV 镜像 UV（Mirrored UV）是指 3D 模型的两个不同面共享同一个纹理，但 UV 坐标方向相反。 举个具体例子：角色脸部 多数角色模型只做半边脸，然后”对称镜像”得到另一边： 左脸 UV 右脸 UV (镜像) (0,0)----(0.5,1) (0.5,1)----(0,0) | ← | | → | | U方向 | | U方向 | | | | | (0,1)----(0.5,1) (0.5,1)----(1,1) 同纹理，U轴方向相反 美术只画半边脸的纹理</summary>
+  </entry>
+  <entry>
+    <title>四种 SQL 建表方式</title>
+    <link href="https://bydblmhtzh.github.io/notes/four-sql-create-table/"/>
+    <id>https://bydblmhtzh.github.io/notes/four-sql-create-table/</id>
+    <updated>2026-11-20T10:37:59.327Z</updated>
+    <published>2026-07-20T07:57:58.000Z</published>
+    <summary>创建一个表： CREATE TABLE opening AS SELECT name FROM pizzas WHERE open &amp;lt;13 ORDERED BY name DESC; (获取下午一点前能吃到披萨的店名) 创建任意条件限制的表： CREATE TABLE study AS SELECT name, MAX(14 - open, 0) AS duration FROM pizzas ORDERED BY duration DESC; (我在下午两点前能带够多</summary>
+  </entry>
+  <entry>
+    <title>Python 基本列表方法</title>
+    <link href="https://bydblmhtzh.github.io/notes/python-list-methods/"/>
+    <id>https://bydblmhtzh.github.io/notes/python-list-methods/</id>
+    <updated>2026-11-20T10:37:59.327Z</updated>
+    <published>2026-07-20T07:43:28.000Z</published>
+    <summary>append()，添加到末尾 extends(s),将可迭代对象的所有元素安插在末尾 insert(i,elem)，0base, remove(elem)移除它的第一个出现的对象 pop(i), pop(),移除最后一个</summary>
+  </entry>
+</feed>

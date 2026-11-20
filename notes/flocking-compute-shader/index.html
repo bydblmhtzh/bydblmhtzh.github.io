@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flocking 拆解（一）：Compute Shader 最小可用例 · bydblmhtzh</title>
+<meta name="description" content="读完、写完、踩过坑之后的笔记：图形渲染 / Shader / 工具与工程实践。">
+<meta name="author" content="bydblmhtzh">
+<link rel="canonical" href="https://bydblmhtzh.github.io/notes/flocking-compute-shader/">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flocking 拆解（一）：Compute Shader 最小可用例 · bydblmhtzh">
+<meta property="og:description" content="读完、写完、踩过坑之后的笔记：图形渲染 / Shader / 工具与工程实践。">
+<meta property="og:url" content="https://bydblmhtzh.github.io/notes/flocking-compute-shader/">
+<meta property="og:site_name" content="bydblmhtzh">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/atom+xml" title="bydblmhtzh" href="/atom.xml">
+<link rel="stylesheet" href="/css/vendor/katex.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body data-root="/">
+  <div class="progress" id="reading-progress" aria-hidden="true"></div>
+  
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label="bydblmhtzh 首页">
+      <span class="brand__mark" aria-hidden="true">&lt;/&gt;</span>
+      <span class="brand__text">bydblmhtzh</span>
+    </a>
+    <nav class="nav" aria-label="主导航">
+      
+      <a class="nav__link" href="/">首页</a>
+      
+      <a class="nav__link" href="/archives/">归档</a>
+      
+      <a class="nav__link" href="/tags/">标签</a>
+      
+      <a class="nav__link" href="/search/">搜索</a>
+      
+      <a class="nav__link" href="/about/">关于</a>
+      
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换深浅色" title="切换深浅色">
+      <svg class="icon icon--moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon icon--sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+  <main class="site-main container" id="main">
+    
+<article class="post" data-toc-depth="3">
+  <header class="post__head">
+    
+    <div class="post__kicker">
+      <a href="/categories/%E5%9B%BE%E5%BD%A2%E6%B8%B2%E6%9F%93/">图形渲染</a>
+    </div>
+    
+    <h1 class="post__title">Flocking 拆解（一）：Compute Shader 最小可用例</h1>
+    <div class="post__meta">
+      <time datetime="2026-11-05">2026-11-05</time>
+      <span class="post__dot" aria-hidden="true">·</span>
+      <span>5 分钟阅读</span>
+      
+      <span class="post__dot" aria-hidden="true">·</span>
+      <span class="post__tags">
+        <a href="/tags/ComputeShader/">#ComputeShader</a><a href="/tags/Unity/">#Unity</a><a href="/tags/Flocking/">#Flocking</a>
+      </span>
+      
+    </div>
+  </header>
+
+  <div class="post__layout">
+    <details class="toc-inline">
+      <summary class="toc-inline__summary">目录</summary>
+      <div class="toc" data-toc></div>
+    </details>
+    <div class="post__content"><p>想写 boids flocking，先把链路跑通：<strong>CPU 传数据 → GPU 算 → 读回</strong>。这篇只做这一件事——一个把 float 数组乘 10 的最小 Compute Shader，作为后面上 boids 三规则的骨架。</p>
+<h2 id="Compute-Shader-侧"><a href="#Compute-Shader-侧" class="headerlink" title="Compute Shader 侧"></a>Compute Shader 侧</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> kernel MainCS</span></span><br><span class="line"><span class="comment">// kernel：告诉 C# 这是一个可调用入口</span></span><br><span class="line"><span class="comment">// MainCS：计算主入口的名字</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> _Width;</span><br><span class="line"><span class="type">float</span> _Multiplier;</span><br><span class="line"><span class="comment">// CPU 传入的变量</span></span><br><span class="line"></span><br><span class="line">RWStructuredBuffer&lt;<span class="type">float</span>&gt; _DataBuffer;</span><br><span class="line"><span class="comment">// StructuredBuffer：数组；RW 表示可读可写</span></span><br><span class="line"></span><br><span class="line">[numthread(<span class="number">8</span>,<span class="number">8</span>,<span class="number">1</span>)]</span><br><span class="line"><span class="type">void</span> <span class="title function_">MainCS</span><span class="params">(uint3 id : SV_DispatchThreadID)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (id.x &gt;= _Width || id.y &gt;= _Width) <span class="keyword">return</span>;</span><br><span class="line">    <span class="type">int</span> index = id.y * _Width + id.x;</span><br><span class="line"></span><br><span class="line">    _DataBuffer[index] = _DataBuffer[index] * _Multiplier;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个要点：</p>
+<ul>
+<li><code>#pragma kernel MainCS</code> 声明入口，C# 侧靠 <code>FindKernel(&quot;MainCS&quot;)</code> 找到它</li>
+<li><code>RWStructuredBuffer&lt;float&gt;</code> 是 GPU 上的可读写数组，CPU 侧对应 <code>ComputeBuffer</code></li>
+<li><code>[numthread(8,8,1)]</code> 是一个线程组的形状；<code>Dispatch</code> 传的是<strong>组数</strong>，不是线程数，所以要 <code>ceil(count / 8)</code></li>
+</ul>
+<h2 id="C-侧"><a href="#C-侧" class="headerlink" title="C# 侧"></a>C# 侧</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SimpleRunner</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> ComputeShader cs;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 1. 找到 compute shader 入口</span></span><br><span class="line">        <span class="built_in">int</span> kernel = cs.FindKernel(<span class="string">&quot;MainCS&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 准备 CPU 数据</span></span><br><span class="line">        <span class="built_in">int</span> count = <span class="number">100</span>;</span><br><span class="line">        <span class="built_in">float</span>[] cpuData = <span class="keyword">new</span> <span class="built_in">float</span>[count];</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; count; i++)</span><br><span class="line">            cpuData[i] = i;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. GPU 显存申请</span></span><br><span class="line">        ComputeBuffer buffer = <span class="keyword">new</span> ComputeBuffer(count, <span class="keyword">sizeof</span>(<span class="built_in">float</span>));</span><br><span class="line">        buffer.SetData(cpuData);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 绑定两端参数</span></span><br><span class="line">        cs.SetFloat(<span class="string">&quot;_Multiplier&quot;</span>, <span class="number">10.0f</span>);</span><br><span class="line">        cs.SetBuffer(kernel, <span class="string">&quot;_DataBuffer&quot;</span>, buffer);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 执行：组数 = 线程数 / 每组线程数，向上取整</span></span><br><span class="line">        <span class="built_in">int</span> groups = Mathf.CeilToInt(count / <span class="number">8.0f</span>);</span><br><span class="line">        cs.Dispatch(kernel, groups, groups, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 6. 读回</span></span><br><span class="line">        <span class="built_in">float</span>[] result = <span class="keyword">new</span> <span class="built_in">float</span>[count];</span><br><span class="line">        buffer.GetData(result);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 7. 验证</span></span><br><span class="line">        Debug.Log(<span class="string">$&quot;result[0] = <span class="subst">&#123;result[<span class="number">0</span>]&#125;</span>&quot;</span>);   <span class="comment">// 0 * 10 = 0</span></span><br><span class="line">        Debug.Log(<span class="string">$&quot;result[10] = <span class="subst">&#123;result[<span class="number">10</span>]&#125;</span>&quot;</span>); <span class="comment">// 10 * 10 = 100</span></span><br><span class="line">        Debug.Log(<span class="string">$&quot;result[99] = <span class="subst">&#123;result[<span class="number">99</span>]&#125;</span>&quot;</span>); <span class="comment">// 99 * 10 = 990</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 8. 释放显存（极其重要）</span></span><br><span class="line">        buffer.Release();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>八个步骤里最容易忘的是第 8 步：<code>ComputeBuffer</code> 不归 GC 管，不 <code>Release()</code> 就是显存泄漏，反复进场景会直接崩。</p>
+<h2 id="下一步：boids-三条规则"><a href="#下一步：boids-三条规则" class="headerlink" title="下一步：boids 三条规则"></a>下一步：boids 三条规则</h2><p>有了这个骨架，flocking 就是在 kernel 里把”乘 10”换成”看邻居”：</p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>做什么</th>
+<th>需要的邻居数据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分离 Separation</td>
+<td>和太近的邻居拉开距离</td>
+<td>位置、距离</td>
+</tr>
+<tr>
+<td>对齐 Alignment</td>
+<td>速度方向朝邻居平均速度靠</td>
+<td>位置、速度</td>
+</tr>
+<tr>
+<td>聚合 Cohesion</td>
+<td>朝邻居质心靠</td>
+<td>位置</td>
+</tr>
+</tbody></table>
+<p>真正的难点不在规则本身，在<strong>邻居查询</strong>：粒子数一多，每个粒子遍历全部邻居就是 <span class="math-inline" data-tex="O(n^2)"></span>。通常的做法是空间网格（把空间切成格子，只查相邻 27 格）或者把邻居列表预计算好塞进 buffer。</p>
+<p>下一篇再把这套换进去，并处理边界、参数调优和视觉结果。</p>
+</div>
+    <aside class="toc-aside" aria-label="文章目录">
+      <div class="toc-aside__title">目录</div>
+      <div class="toc" data-toc></div>
+    </aside>
+  </div>
+
+  <footer class="post__foot">
+    <a class="back-top" href="#" id="back-top">↑ 回到顶部</a>
+  </footer>
+
+  
+  <nav class="post-nav" aria-label="上一篇 / 下一篇">
+    
+    <a class="post-nav__item" href="/notes/memory-allocation-fit/">
+      <span class="post-nav__label">← 上一篇</span>
+      <span class="post-nav__title">内存分配：首次、最佳、最坏适应走一遍</span>
+    </a>
+    
+    
+    <a class="post-nav__item post-nav__item--next" href="/notes/endfield-assets/">
+      <span class="post-nav__label">下一篇 →</span>
+      <span class="post-nav__title">终末地资产与材质说明</span>
+    </a>
+    
+  </nav>
+  
+</article>
+
+  </main>
+  
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <p class="site-footer__copy">© 2026 bydblmhtzh</p>
+    <nav class="site-footer__links" aria-label="页脚链接">
+      <a href="https://github.com/bydblmhtzh" target="_blank" rel="noopener">GitHub</a>
+      <a href="/atom.xml">RSS</a>
+      <a href="/about/">关于</a>
+    </nav>
+    <p class="site-footer__meta">Hexo · GitHub Pages</p>
+  </div>
+</footer>
+
+  <script src="/js/main.js" defer></script>
+
+</body>
+</html>
